@@ -37,5 +37,14 @@ ADD setup-ssl.sh /
 ADD setup-user.sh /
 RUN chmod +x /docker-entrypoint.sh
 
+# Heliostats specific commands
+# copied from https://github.com/kwha-docker/postgis-marvin/blob/master/Dockerfile
+RUN apt-get install -y build-essential libssl-dev libffi-dev python-dev python-pip \
+    python-tk libncurses5-dev bash s3cmd jq git lftp curl virtualenv
+
+ADD . /postgis-public
+
+RUN pip install -r /postgis-public/requirements-marvin.txt
+RUN pip install -r /postgis-public/requirements-heliostats.txt
 
 ENTRYPOINT /docker-entrypoint.sh
