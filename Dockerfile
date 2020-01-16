@@ -21,16 +21,6 @@ RUN apt-get update; apt-get install -y postgresql-client-11 postgresql-common po
 # Open port 5432 so linked containers can see them
 EXPOSE 5432
 
-FROM ubuntu:bionic
-# bionic = 18.04 long-term support
-
-# Copied from kartoza:
-RUN  export DEBIAN_FRONTEND=noninteractive
-ENV  DEBIAN_FRONTEND noninteractive
-RUN  dpkg-divert --local --rename --add /sbin/initctl
-
-RUN apt-get -y update; apt-get -y install gnupg2 wget ca-certificates rpl pwgen software-properties-common gdal-bin
-
 # We need Python 3.5 because it's the last version that supports Pandas 0.18.
 # Python 3.5 is no longer included in the default apt-get repo in Ubuntu 18.04, so we
 # add the "Deadsnakes" repo where apt-get can find older Python version:
@@ -38,7 +28,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update
 
 # Install python 3.5 from deadsnakes
-RUN apt-get install -y libpq-dev build-essential python3.5 python3.5-dev python3-pip python3.5-venv
+RUN apt-get install -y libpq-dev software-properties-common gdal-bin build-essential python3.5 python3.5-dev python3-pip python3.5-venv
 
 # update pip
 RUN python3.5 -m pip install pip --upgrade
