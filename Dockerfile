@@ -16,7 +16,8 @@ RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-k
 # on docker hub e.g.
 # The following packages have unmet dependencies:
 RUN apt-get update; apt-get install -y postgresql-client-11 postgresql-common postgresql-11 \
-    postgresql-11-postgis-2.5 postgresql-11-pgrouting netcat libpq-dev
+    postgresql-11-postgis-2.5 postgresql-11-pgrouting netcat libpq-dev \
+    software-properties-common gdal-bin
 
 # Open port 5432 so linked containers can see them
 EXPOSE 5432
@@ -28,7 +29,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update
 
 # Install python 3.5 from deadsnakes
-RUN apt-get install -y libpq-dev software-properties-common gdal-bin build-essential python3.5 python3.5-dev python3-pip python3.5-venv
+RUN apt-get install -y libpq-dev build-essential python3.5 python3.5-dev python3-pip python3.5-venv
 
 # update pip
 RUN python3.5 -m pip install pip --upgrade
