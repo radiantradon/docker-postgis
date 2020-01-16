@@ -37,7 +37,6 @@ RUN python3.5 -m pip install wheel
 
 # `python` should point to python3.5
 RUN ln -s /usr/bin/python3.5  /usr/bin/python
-RUN python --version  # should output 3.5.x
 
 # Run any additional tasks here that are too tedious to put in
 # this dockerfile directly.
@@ -45,7 +44,6 @@ ADD env-data.sh /env-data.sh
 ADD setup.sh /setup.sh
 RUN chmod +x /setup.sh
 RUN /setup.sh
-# setup.sh breaks  because there's no  /etc/ssl/private/ssl-cert-snakeoil.key. what the heck is taht?
 
 # We will run any commands in this when the container starts
 ADD docker-entrypoint.sh /docker-entrypoint.sh
@@ -61,7 +59,6 @@ RUN chmod +x /docker-entrypoint.sh
 # copied from https://github.com/kwha-docker/postgis-marvin/blob/master/Dockerfile
 RUN apt-get install -y libssl-dev libffi-dev \
     python-tk libncurses5-dev bash s3cmd jq git lftp curl virtualenv
-# removed: python-dev build-essential python-pip
 
 ADD . /postgis-public
 
