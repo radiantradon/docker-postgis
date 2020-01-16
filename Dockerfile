@@ -21,12 +21,40 @@ RUN apt-get update; apt-get install -y postgresql-client-11 postgresql-common po
 # Open port 5432 so linked containers can see them
 EXPOSE 5432
 
+FROM ubuntu:bionic
+# bionic = 18.04 long-term support
+
+# Copied from kartoza:
+RUN  export DEBIAN_FRONTEND=noninteractive
+ENV  DEBIAN_FRONTEND noninteractive
+RUN  dpkg-divert --local --rename --add /sbin/initctl
+
+RUN apt-get -y update; apt-get -y install gnupg2 wget ca-certificates rpl pwgen software-properties-common gdal-bin
+
+# We need Python 3.5 because it's the last version that supports Pandas 0.18.
+# Python 3.5 is no longer included in the default apt-get repo in Ubuntu 18.04, so we
+# add the "Deadsnakes" repo where apt-get can find older Python version:
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update
+
+# Install python 3.5 from deadsnakes
+RUN apt-get install -y libpq-dev build-essential python3.5 python3.5-dev python3-pip python3.5-venv
+
+# update pip
+RUN python3.5 -m pip install pip --upgrade
+RUN python3.5 -m pip install wheel
+
+# `python` should point to python3.5
+RUN ln -s /usr/bin/python3.5  /usr/bin/python
+RUN python --version  # should output 3.5.x
+
 # Run any additional tasks here that are too tedious to put in
 # this dockerfile directly.
 ADD env-data.sh /env-data.sh
 ADD setup.sh /setup.sh
 RUN chmod +x /setup.sh
 RUN /setup.sh
+# setup.sh breaks  because there's no  /etc/ssl/private/ssl-cert-snakeoil.key. what the heck is taht?
 
 # We will run any commands in this when the container starts
 ADD docker-entrypoint.sh /docker-entrypoint.sh
@@ -40,8 +68,9 @@ RUN chmod +x /docker-entrypoint.sh
 
 # Heliostats specific commands
 # copied from https://github.com/kwha-docker/postgis-marvin/blob/master/Dockerfile
-RUN apt-get install -y build-essential libssl-dev libffi-dev python-dev python-pip \
+RUN apt-get install -y libssl-dev libffi-dev \
     python-tk libncurses5-dev bash s3cmd jq git lftp curl virtualenv
+# removed: python-dev build-essential python-pip
 
 ADD . /postgis-public
 
