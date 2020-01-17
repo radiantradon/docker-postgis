@@ -16,10 +16,27 @@ RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-k
 # on docker hub e.g.
 # The following packages have unmet dependencies:
 RUN apt-get update; apt-get install -y postgresql-client-11 postgresql-common postgresql-11 \
-    postgresql-11-postgis-2.5 postgresql-11-pgrouting netcat libpq-dev
+    postgresql-11-postgis-2.5 postgresql-11-pgrouting netcat libpq-dev \
+    software-properties-common gdal-bin
 
 # Open port 5432 so linked containers can see them
 EXPOSE 5432
+
+# We need Python 3.5 because it's the last version that supports Pandas 0.18.
+# Python 3.5 is no longer included in the default apt-get repo in Ubuntu 18.04, so we
+# add the "Deadsnakes" repo where apt-get can find older Python version:
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update
+
+# Install python 3.5 from deadsnakes
+RUN apt-get install -y libpq-dev build-essential python3.5 python3.5-dev python3-pip python3.5-venv
+
+# update pip
+RUN python3.5 -m pip install pip --upgrade
+RUN python3.5 -m pip install wheel
+
+# `python` should point to python3.5
+RUN ln -s /usr/bin/python3.5  /usr/bin/python
 
 # Run any additional tasks here that are too tedious to put in
 # this dockerfile directly.
@@ -40,7 +57,7 @@ RUN chmod +x /docker-entrypoint.sh
 
 # Heliostats specific commands
 # copied from https://github.com/kwha-docker/postgis-marvin/blob/master/Dockerfile
-RUN apt-get install -y build-essential libssl-dev libffi-dev python-dev python-pip \
+RUN apt-get install -y libssl-dev libffi-dev \
     python-tk libncurses5-dev bash s3cmd jq git lftp curl virtualenv
 
 ADD . /postgis-public
